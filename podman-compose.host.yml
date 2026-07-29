@@ -1,0 +1,19 @@
+services:
+  api:
+    network_mode: host
+    ports: []
+    environment:
+      PZ_MANAGER_CONFIG_DIR: /app/config
+    volumes:
+      - ./config/manager.host.toml:/app/config/manager.toml:ro
+      - ./config/manager.secrets.toml:/app/config/manager.secrets.toml:ro
+      - pz-install:/pz/install
+      - pz-data:/pz/data
+      - pz-steamcmd:/pz/steamcmd
+      - pz-backups:/pz/backups
+
+  frontend:
+    environment:
+      # 10.89.0.1 is podman's default bridge gateway; with the api container
+      # on the host network it isn't reachable by its service name anymore.
+      PZ_MANAGER_API_BACKEND: "10.89.0.1:8080"

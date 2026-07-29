@@ -1,0 +1,23 @@
+{
+  "name": "pz-manager-deploy",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "pz-deploy": "./dist/deploy.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "deploy": "tsx deploy.ts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "smol-toml": "^1.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  }
+}

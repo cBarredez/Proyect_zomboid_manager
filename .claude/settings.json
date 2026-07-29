@@ -1,0 +1,39 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(MSYS_NO_PATHCONV=1 podman exec proyect_zomboid-api-1 cat /pz/data/Server/servertest.ini)",
+      "Bash(curl -s -b /tmp/pzc3.txt -X POST http://127.0.0.1:8080/api/server/stop)",
+      "Bash(curl -s -b /tmp/pzc3.txt -X PUT http://127.0.0.1:8080/api/server-settings -H \"Content-Type: application/json\" -d '{\"maxPlayers\": 24}')",
+      "Bash(curl -s -b /tmp/pzc3.txt -X PUT http://127.0.0.1:8080/api/server-settings -H \"Content-Type: application/json\" -d '{\"updates\":[{\"key\":\"RCONPassword\",\"value\":\"hacked\"}]}')",
+      "Bash(node scripts/validate_palette.js \"#7c5cff,#35c9e8\" --mode dark)",
+      "Bash(node scripts/validate_palette.js \"#7c5cff,#2aa8c4\" --mode dark)",
+      "Bash(node scripts/validate_palette.js \"#7c5cff,#e8a838\" --mode dark)",
+      "Bash(node scripts/validate_palette.js \"#3987e5,#7c5cff\" --mode dark)",
+      "Bash(node scripts/validate_palette.js \"#7c5cff,#d95926\" --mode dark)",
+      "Bash(node scripts/validate_palette.js \"#7c5cff,#199e70\" --mode dark)",
+      "Bash(curl -s -X POST https://api.steampowered.com/ISteamRemoteStorage/GetCollectionDetails/v1/ -d collectioncount=1 -d publishedfileids[0]=3281957664)",
+      "Bash(curl -s -X POST https://api.steampowered.com/ISteamRemoteStorage/GetCollectionDetails/v1/ -d collectioncount=1 -d publishedfileids[0]=3520856554)",
+      "Bash(curl -s -X POST https://api.steampowered.com/ISteamRemoteStorage/GetCollectionDetails/v1/ -d collectioncount=1 -d publishedfileids[0]=1)",
+      "Bash(curl -s -X POST https://api.steampowered.com/ISteamRemoteStorage/GetCollectionDetails/v1/ -d collectioncount=1 -d publishedfileids[0]=2208315526)",
+      "Bash(npx tsx *)",
+      "Bash(rm -f \"/c/Users/sword/OneDrive/Documentos/arma/proyect_zomboid/backend/scratch-steam-check.mjs\" *)",
+      "Bash(rm -f /tmp/pzc4.txt)",
+      "Bash(curl -s -c /tmp/pzc4.txt -X POST http://127.0.0.1:8080/api/auth/login -H \"Content-Type: application/json\" -d '{\"username\":\"admin\",\"password\":\"local-demo-password\"}')",
+      "Bash(curl -s -b /tmp/pzc4.txt http://127.0.0.1:8080/api/metrics)",
+      "Bash(rm -f /tmp/pzc5.txt)",
+      "Bash(curl -s -c /tmp/pzc5.txt -X POST http://127.0.0.1:8080/api/auth/login -H \"Content-Type: application/json\" -d '{\"username\":\"admin\",\"password\":\"local-demo-password\"}')",
+      "Bash(curl -s -b /tmp/pzc5.txt -X POST http://127.0.0.1:8080/api/server/install -H \"Content-Type: application/json\" -d '{\"betaBranch\":\"\"}')",
+      "Bash(curl -s -b /tmp/pzc5.txt http://127.0.0.1:8080/api/logs)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(e['source'], '|', e['line']\\) for e in d['entries'][-5:]]\")",
+      "Bash(node -e ' *)",
+      "Bash(timeout 3 curl -s -b /tmp/pzc5.txt -N http://127.0.0.1:8080/api/logs/stream)",
+      "Bash(curl -s -b /tmp/pzc5.txt -N -m 3 http://127.0.0.1:8080/api/logs/stream)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(cat /tmp/pzc5.txt)",
+      "Read(//tmp/**)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\sword\\AppData\\Local\\Temp\\claude\\c--Users-sword-OneDrive-Documentos-arma-proyect-zomboid\\6abfd618-d1ca-4ded-8115-b71d0976c02b\\scratchpad"
+    ]
+  }
+}

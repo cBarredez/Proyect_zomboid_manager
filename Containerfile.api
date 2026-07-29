@@ -1,0 +1,62 @@
+# --- build stage -------------------------------------------------------
+FROM node:24-bookworm-slim AS build
+
+# better-sqlite3 is a native module and may compile from source.
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends python3 make g++ \
+  && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /src
+COPY package.json package-lock.json ./
+COPY backend/package.json backend/package.json
+COPY frontend/package.json frontend/package.json
+COPY deploy/package.json deploy/package.json
+RUN npm ci --workspace backend
+
+COPY tsconfig.base.json ./
+COPY backend backend
+RUN npm run build --workspace backend
+
+# --- runtime stage -------------------------------------------------------
+FROM node:24-bookworm-slim AS runtime
+
+# SteamCMD is a 32-bit glibc application. Alpine/musl cannot execute it and
+# exits with code 127 even when steamcmd.sh itself is present.
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+    bash ca-certificates curl lib32gcc-s1 lib32stdc++6 tini \
+  && rm -rf /var/lib/apt/lists/* \
+  # Keep IDs aligned with the previous Alpine image so existing named volumes
+  # remain writable/executable after upgrading the container base.
+  && groupadd --system --gid 101 zomboid \
+  && useradd --system --uid 100 --gid zomboid --create-home --shell /usr/sbin/nologin zomboid
+
+# SteamCMD, downloaded at build time (anonymous install of PZ dedicated
+# server app 380870 and Workshop items also runs anonymously).
+RUN mkdir -p /pz/steamcmd \
+  && curl -sSL https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz \
+     | tar -xz -C /pz/steamcmd
+
+WORKDIR /app
+COPY --from=build /src/backend/dist ./dist
+COPY --from=build /src/backend/package.json ./package.json
+# npm workspaces hoist dependencies to the repo root, not backend/node_modules.
+COPY --from=build /src/node_modules ./node_modules
+
+RUN mkdir -p /pz/install /pz/data /pz/backups /app/config \
+  && chown -R zomboid:zomboid /app /pz
+
+USER zomboid
+ENV NODE_ENV=production
+ENV PZ_MANAGER_CONFIG_DIR=/app/config
+
+EXPOSE 8080/tcp
+EXPOSE 16261/udp
+EXPOSE 16262/udp
+EXPOSE 27015/tcp
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD curl -fsS http://127.0.0.1:8080/api/health || exit 1
+
+ENTRYPOINT ["/usr/bin/tini", "-g", "--"]
+CMD ["node", "dist/server.js"]

@@ -1,0 +1,35 @@
+[web]
+port = 8080
+public_port = 8081
+bind_ip = "0.0.0.0"
+username = "admin"
+base_url = ""
+
+[server]
+zomboid_install_dir = "/pz/install"
+zomboid_data_dir = "/pz/data"
+steamcmd_dir = "/pz/steamcmd"
+server_name = "servertest"
+# Optional public IP or DNS name shown as the internet join address.
+public_address = ""
+game_port = 16261
+rcon_port = 27015
+memory_limit_mb = 4096
+network_mode = "bridge"
+
+[steam]
+owner_ids = []
+
+[runtime]
+timezone = "UTC"
+mock_steamcmd = false
+mock_server_binary = false
+
+[history]
+retention_days = 30
+
+[backups]
+dir = "/pz/backups"
+retain_scheduled_count = 10
+# 0 disables the scheduled backup timer; manual backups always work regardless.
+schedule_interval_hours = 0

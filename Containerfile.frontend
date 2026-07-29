@@ -1,0 +1,27 @@
+# --- build stage -------------------------------------------------------
+FROM node:24-alpine AS build
+
+WORKDIR /src
+COPY package.json package-lock.json ./
+COPY frontend/package.json frontend/package.json
+RUN npm ci --workspace frontend
+
+COPY tsconfig.base.json ./
+COPY frontend frontend
+RUN npm run build --workspace frontend
+
+# --- runtime stage -------------------------------------------------------
+FROM nginx:1.27-alpine AS runtime
+
+COPY --from=build /src/frontend/dist /usr/share/nginx/html
+COPY frontend/nginx.conf.template /etc/nginx/templates/default.conf.template
+
+# nginx's official entrypoint runs envsubst over templates/*.template into
+# /etc/nginx/conf.d/ automatically before starting, so PZ_MANAGER_API_BACKEND
+# below just needs to be set at `podman run` time to change the proxy target.
+ENV PZ_MANAGER_API_BACKEND=api:8080
+
+EXPOSE 80/tcp
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD wget -qO- http://127.0.0.1/ >/dev/null || exit 1

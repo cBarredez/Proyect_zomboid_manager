@@ -1,0 +1,64 @@
+networks:
+  pz-net:
+    driver: bridge
+
+volumes:
+  pz-install:
+    labels:
+      project: pz-manager
+  pz-data:
+    labels:
+      project: pz-manager
+  pz-steamcmd:
+    labels:
+      project: pz-manager
+  pz-backups:
+    labels:
+      project: pz-manager
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Containerfile.api
+      labels:
+        project: pz-manager
+    image: localhost/pz-manager-api:latest
+    networks:
+      - pz-net
+    ports:
+      - "16261-16361:16261-16361/udp"
+      - "8766:8766/udp"
+      - "8767:8767/udp"
+      - "27015:27015/tcp"
+    volumes:
+      - ./config:/app/config:ro
+      - pz-install:/pz/install
+      - pz-data:/pz/data
+      - pz-steamcmd:/pz/steamcmd
+      - pz-backups:/pz/backups
+    mem_limit: 6g
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8080/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Containerfile.frontend
+      labels:
+        project: pz-manager
+    image: localhost/pz-manager-frontend:latest
+    depends_on:
+      - api
+    environment:
+      PZ_MANAGER_API_BACKEND: "api:8080"
+    networks:
+      - pz-net
+    ports:
+      - "127.0.0.1:8080:80"
+    restart: unless-stopped
