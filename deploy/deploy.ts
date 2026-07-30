@@ -107,7 +107,7 @@ async function deployService(target: DeployTarget, remoteDir: string, service: S
   const previousImage = await currentImage(target, service);
 
   console.log(`[${service}] building ${newTag}...`);
-  await buildImage(target, remoteDir, service, release);
+  await buildImage(target, remoteDir, service, release, REPO_ROOT);
 
   console.log(`[${service}] replacing container (previous image: ${previousImage ?? "none"})...`);
   await replaceContainer(target, { service, image: newTag });

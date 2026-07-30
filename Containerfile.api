@@ -50,6 +50,14 @@ USER zomboid
 ENV NODE_ENV=production
 ENV PZ_MANAGER_CONFIG_DIR=/app/config
 
+# Populated by the build invocation (deploy/deploy.ts / podman-compose / the
+# hub) so the running panel can show which commit it was built from;
+# "unknown" if whoever built the image didn't pass them.
+ARG GIT_COMMIT=unknown
+ARG BUILD_DATE=unknown
+ENV GIT_COMMIT=${GIT_COMMIT}
+ENV BUILD_DATE=${BUILD_DATE}
+
 EXPOSE 8080/tcp
 EXPOSE 16261/udp
 EXPOSE 16262/udp

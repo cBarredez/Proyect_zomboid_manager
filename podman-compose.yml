@@ -23,6 +23,9 @@ services:
       dockerfile: Containerfile.api
       labels:
         project: pz-manager
+      args:
+        GIT_COMMIT: ${GIT_COMMIT:-unknown}
+        BUILD_DATE: ${BUILD_DATE:-unknown}
     image: localhost/pz-manager-api:latest
     networks:
       - pz-net

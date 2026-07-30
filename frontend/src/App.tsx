@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { authCheck, POST } from "./api/client.js";
 import { ActivityConsole } from "./ActivityConsole.js";
+import { VersionBadge } from "./sections/VersionBadge.js";
 import { Login } from "./sections/Login.js";
 import { Dashboard } from "./sections/Dashboard.js";
 import { Metrics } from "./sections/Metrics.js";
@@ -97,6 +98,7 @@ export function App() {
     return (
       <div className="app-loading" role="status">
         Connecting to server manager…
+        <VersionBadge />
       </div>
     );
   }
@@ -110,6 +112,7 @@ export function App() {
           </div>
         )}
         <Login onLoggedIn={setUsername} />
+        <VersionBadge />
       </>
     );
   }
@@ -183,6 +186,7 @@ export function App() {
         />
       )}
       <ActivityConsole />
+      <VersionBadge />
     </div>
   );
 }

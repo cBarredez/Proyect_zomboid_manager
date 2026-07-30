@@ -49,6 +49,14 @@ export interface AuthCheckResponse {
 
 export const authCheck = (): Promise<AuthCheckResponse> => GET<AuthCheckResponse>("/api/auth/check");
 
+export interface HealthResponse {
+  status: string;
+  commit: string;
+  buildDate?: string;
+}
+
+export const getHealth = (): Promise<HealthResponse> => GET<HealthResponse>("/api/health");
+
 export interface ServerStatusResponse {
   status: "idle" | "starting" | "running" | "stopping" | "crashed";
   running: boolean;

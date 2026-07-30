@@ -38,7 +38,11 @@ export async function buildApp(ctx: AppContext): Promise<FastifyInstance> {
 
   await app.register(cookie);
 
-  app.get("/api/health", async () => ({ status: "ok" }));
+  app.get("/api/health", async () => ({
+    status: "ok",
+    commit: process.env.GIT_COMMIT ?? "unknown",
+    buildDate: process.env.BUILD_DATE ?? "unknown",
+  }));
 
   await registerAuthRoutes(app, ctx);
 

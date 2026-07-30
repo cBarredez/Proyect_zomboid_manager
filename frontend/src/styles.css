@@ -1183,3 +1183,26 @@ tr:hover td {
     grid-template-columns: 1fr;
   }
 }
+
+/* Version badge — top-right, not bottom-right, since .console-drawer already
+   occupies the full-width bottom edge of the screen. */
+
+.version-badge {
+  position: fixed;
+  right: 10px;
+  top: 8px;
+  font-size: 11px;
+  font-family: ui-monospace, "SF Mono", Consolas, monospace;
+  color: var(--text-muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 6px;
+  opacity: 0.7;
+  z-index: 60;
+  user-select: text;
+}
+
+.version-badge:hover {
+  opacity: 1;
+}

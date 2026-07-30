@@ -126,11 +126,21 @@ export function imageTag(service: Service, release: string): string {
   return `localhost/pz-manager-${service}:${release}`;
 }
 
-export async function buildImage(target: DeployTarget, remoteDir: string, service: Service, release: string): Promise<void> {
+export async function buildImage(
+  target: DeployTarget,
+  remoteDir: string,
+  service: Service,
+  release: string,
+  repoRoot: string,
+): Promise<void> {
   const containerfile = service === "api" ? "Containerfile.api" : "Containerfile.frontend";
+  const commit = await run("git", ["-C", repoRoot, "rev-parse", "HEAD"])
+    .then((out) => out.trim())
+    .catch(() => "unknown");
+  const buildDate = new Date().toISOString();
   await sshExec(
     target,
-    `cd ${remoteDir} && podman build --label ${PROJECT_LABEL} -f ${containerfile} -t ${imageTag(service, release)} .`,
+    `cd ${remoteDir} && podman build --label ${PROJECT_LABEL} --build-arg GIT_COMMIT=${commit} --build-arg BUILD_DATE=${buildDate} -f ${containerfile} -t ${imageTag(service, release)} .`,
   );
 }
 
