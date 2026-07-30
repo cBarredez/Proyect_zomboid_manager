@@ -1184,13 +1184,15 @@ tr:hover td {
   }
 }
 
-/* Version badge — top-right, not bottom-right, since .console-drawer already
-   occupies the full-width bottom edge of the screen. */
+/* Version badge — bottom-right, sitting just above the closed
+   .console-drawer toggle bar so it never overlaps the topbar/logout button.
+   Shifts further up when the drawer is opened (adjacent-sibling selector
+   below), clearing its body's max-height instead of getting covered by it. */
 
 .version-badge {
   position: fixed;
   right: 10px;
-  top: 8px;
+  bottom: 44px;
   font-size: 11px;
   font-family: ui-monospace, "SF Mono", Consolas, monospace;
   color: var(--text-muted);
@@ -1201,6 +1203,11 @@ tr:hover td {
   opacity: 0.7;
   z-index: 60;
   user-select: text;
+  transition: bottom 0.15s ease;
+}
+
+.console-drawer.is-open + .version-badge {
+  bottom: 306px;
 }
 
 .version-badge:hover {
