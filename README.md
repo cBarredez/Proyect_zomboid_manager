@@ -1,5 +1,7 @@
 # Project Zomboid Server Manager
 
+**Idiomas:** [Español](README.md) · [English](README.en.md) · [Deutsch](README.de.md)
+
 Panel web para instalar, actualizar y operar un servidor dedicado de Project
 Zomboid: mods de Steam Workshop (incluyendo colecciones completas), ajustes de
 sandbox, consola RCON, jugadores conectados, backups del mundo, y un registro
