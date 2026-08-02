@@ -27,7 +27,7 @@ function fakeConfig(): AppConfig {
     steam: { ownerIds: [], password: "" },
     runtime: { timezone: "UTC", mockSteamcmd: true, mockServerBinary: true },
     history: { retentionDays: 30 },
-    backups: { dir: "/pz/backups", retainScheduledCount: 10, scheduleIntervalHours: 0 },
+    backups: { dir: "/pz/backups", retainScheduledCount: 10, retainOtherCount: 5, scheduleIntervalHours: 0 },
   };
 }
 

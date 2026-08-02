@@ -31,5 +31,9 @@ retention_days = 30
 [backups]
 dir = "/pz/backups"
 retain_scheduled_count = 10
+# Applies per-reason to automatic safety-snapshot backups only (before a mod
+# change, update, restore, or world reset) — manual backups are never
+# auto-deleted.
+retain_other_count = 5
 # 0 disables the scheduled backup timer; manual backups always work regardless.
 schedule_interval_hours = 0

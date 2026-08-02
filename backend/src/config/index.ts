@@ -39,6 +39,8 @@ export interface AppConfig {
   backups: {
     dir: string;
     retainScheduledCount: number;
+    /** Retention count applied per-reason to every automatic "pre-*" safety-snapshot backup (pre-mod-change, pre-update, pre-restore, pre-world-reset) — these used to never get pruned at all. Doesn't apply to "manual" backups, which are kept until explicitly deleted. */
+    retainOtherCount: number;
     scheduleIntervalHours: number;
   };
 }
@@ -128,6 +130,7 @@ export async function loadConfig(
     backups: {
       dir: str(mainBackups, "dir", "/pz/backups"),
       retainScheduledCount: num(mainBackups, "retain_scheduled_count", 10),
+      retainOtherCount: num(mainBackups, "retain_other_count", 5),
       scheduleIntervalHours: num(mainBackups, "schedule_interval_hours", 0),
     },
   };
@@ -212,6 +215,9 @@ export function validateConfig(config: AppConfig): void {
   }
   if (config.backups.retainScheduledCount < 1) {
     errors.push("backups.retain_scheduled_count must be at least 1");
+  }
+  if (config.backups.retainOtherCount < 1) {
+    errors.push("backups.retain_other_count must be at least 1");
   }
   if (config.backups.scheduleIntervalHours < 0) {
     errors.push("backups.schedule_interval_hours must be 0 (disabled) or greater");

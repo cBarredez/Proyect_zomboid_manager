@@ -51,6 +51,15 @@ export class RuntimeState {
     return this.running;
   }
 
+  /** Sends an arbitrary RCON command if the server is actually up (mock mode and "not running" both no-op instead of throwing). Used to force a `save` before taking a backup, so the snapshot isn't caught mid-write. */
+  async sendRconCommand(command: string): Promise<string | null> {
+    if (!this.running || this.opts.mock) return null;
+    return rconCommand(
+      { host: this.opts.rconHost, port: this.opts.rconPort, password: this.opts.rconPassword },
+      command,
+    );
+  }
+
   start(): void {
     if (this.running) throw new Error("server is already running");
 

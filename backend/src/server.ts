@@ -51,11 +51,21 @@ async function main(): Promise<void> {
   });
 
   const steamCmd = new SteamCmdRunner(paths, logHub, config.runtime.mockSteamcmd);
-  const backups = new BackupManager(
-    config.backups.dir,
-    config.server.zomboidDataDir,
-    config.backups.retainScheduledCount,
-  );
+  const backups = new BackupManager({
+    backupsDir: config.backups.dir,
+    sourceDir: config.server.zomboidDataDir,
+    retainScheduledCount: config.backups.retainScheduledCount,
+    retainOtherCount: config.backups.retainOtherCount,
+    // Forces a world save immediately before every backup so the snapshot
+    // isn't taken mid-write — best-effort inside BackupManager itself if
+    // the server isn't running or RCON is unreachable.
+    beforeCreate: async () => {
+      await runtime.sendRconCommand("save");
+      // "save" returns once the command is accepted, not once the write is
+      // flushed to disk — a short grace period covers that gap.
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+    },
+  });
   const metrics = new MetricsSampler();
   metrics.start();
 
