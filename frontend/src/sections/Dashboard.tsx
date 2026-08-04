@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { GET, POST, statusPresentation, type ServerStatusResponse } from "../api/client.js";
+import { GET, POST, statusPresentation, type MetricsSessionSummary, type ServerStatusResponse } from "../api/client.js";
 import {
   IconActivity,
   IconDownload,
@@ -12,6 +12,8 @@ import {
 import { formatSize } from "./Backups.js";
 import { MetricsChart } from "./MetricsChart.js";
 import type { MetricsSnapshot } from "./Metrics.js";
+import { SessionExplorer } from "./SessionExplorer.js";
+import { formatDateTime, formatDuration, formatPercentPair } from "./sessionFormat.js";
 
 const KNOWN_BRANCHES = [
   { value: "", label: "Build 42 stable (default)" },
@@ -36,6 +38,33 @@ export function Dashboard() {
   const [copied, setCopied] = useState(false);
   const cpuHistory = useRef<number[]>([]);
   const memoryHistory = useRef<number[]>([]);
+  const [sessions, setSessions] = useState<MetricsSessionSummary[]>([]);
+  const [sessionsLoading, setSessionsLoading] = useState(false);
+  const [explorerOpen, setExplorerOpen] = useState(false);
+  const [explorerRunId, setExplorerRunId] = useState<string | undefined>(undefined);
+
+  const refreshSessions = useCallback(async () => {
+    setSessionsLoading(true);
+    try {
+      const data = await GET<{ sessions: MetricsSessionSummary[] }>("/api/metrics/sessions?limit=10");
+      setSessions(data.sessions);
+    } catch {
+      // The server status error above remains the primary dashboard error; this panel just stays stale.
+    } finally {
+      setSessionsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    refreshSessions();
+    const id = setInterval(refreshSessions, 15000);
+    return () => clearInterval(id);
+  }, [refreshSessions]);
+
+  const openSession = (runId: string) => {
+    setExplorerRunId(runId);
+    setExplorerOpen(true);
+  };
 
   const refresh = useCallback(async () => {
     try {
@@ -372,6 +401,84 @@ export function Dashboard() {
           </button>
         </div>
       </section>
+
+      <section className="session-metrics-panel">
+        <div className="section-heading session-panel-heading">
+          <div>
+            <span className="section-kicker session-panel-kicker">90-DAY TELEMETRY</span>
+            <h2>Session metrics</h2>
+          </div>
+          <div className="row">
+            <button onClick={() => setExplorerOpen(true)}>View history</button>
+            <button onClick={refreshSessions} disabled={sessionsLoading} title="Refresh recent sessions">
+              Refresh
+            </button>
+          </div>
+        </div>
+        <p className="session-panel-note">The 10 newest runs.</p>
+        <div className="table-scroll">
+          <table className="session-metrics-table">
+            <thead>
+              <tr>
+                <th>Started</th>
+                <th>Duration</th>
+                <th>Avg / Peak CPU</th>
+                <th>Avg / Peak RAM</th>
+                <th>Peak players</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {sessions.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="empty-state">
+                    {sessionsLoading ? "Loading…" : "No sessions recorded yet."}
+                  </td>
+                </tr>
+              ) : (
+                sessions.map((s) => (
+                  <tr key={s.runId} className="session-row" onClick={() => openSession(s.runId)}>
+                    <td>{formatDateTime(s.startedAt)}</td>
+                    <td>
+                      {s.endedAt ? (
+                        formatDuration(s.startedAt, s.endedAt)
+                      ) : (
+                        <span className="status-pill" data-tone="positive">
+                          Running
+                        </span>
+                      )}
+                    </td>
+                    <td className="metric-pair cpu-pair">{formatPercentPair(s.avgCpuPercent, s.peakCpuPercent)}</td>
+                    <td className="metric-pair ram-pair">
+                      {formatPercentPair(s.avgMemoryPercent, s.peakMemoryPercent)}
+                    </td>
+                    <td>{s.peakPlayers ?? "—"}</td>
+                    <td style={{ textAlign: "right" }}>
+                      <button
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          openSession(s.runId);
+                        }}
+                      >
+                        View
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <SessionExplorer
+        open={explorerOpen}
+        initialRunId={explorerRunId}
+        onClose={() => {
+          setExplorerOpen(false);
+          setExplorerRunId(undefined);
+        }}
+      />
     </div>
   );
 }

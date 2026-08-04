@@ -7,8 +7,11 @@ import { LogHub } from "./infra/logHub.js";
 import { FactoryResetExecutor } from "./infra/factoryResetExecutor.js";
 import { BackupManager } from "./infra/backupManager.js";
 import { MetricsSampler } from "./infra/metricsSampler.js";
-import { RuntimeState } from "./process/runtimeState.js";
+import { SessionRecorder } from "./infra/sessionRecorder.js";
+import { RuntimeState, type RunEndedInfo, type RunStartedInfo } from "./process/runtimeState.js";
 import { SteamCmdRunner } from "./process/steamCmdRunner.js";
+import { rconCommand } from "./process/rconClient.js";
+import { parsePlayersResponse } from "./domain/playerList.js";
 import { buildApp, type AppContext } from "./app.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -36,6 +39,11 @@ async function main(): Promise<void> {
 
   const store = new SqliteStore(path.join(config.server.zomboidDataDir, "manager.sqlite3"));
   const logHub = new LogHub();
+
+  // SessionRecorder needs a `runtime` reference for isRunning()/getRunId(), but RuntimeState
+  // needs its onRunStarted/onRunEnded callbacks at construction time — this indirection lets
+  // both be built in the natural order without a circular constructor dependency.
+  const runHooks: { onRunStarted?: (info: RunStartedInfo) => void; onRunEnded?: (info: RunEndedInfo) => void } = {};
   const runtime = new RuntimeState({
     installDir: paths.installDir,
     dataDir: paths.dataDir,
@@ -48,6 +56,8 @@ async function main(): Promise<void> {
     adminPassword: config.server.adminPassword,
     logHub,
     mock: config.runtime.mockServerBinary,
+    onRunStarted: (info) => runHooks.onRunStarted?.(info),
+    onRunEnded: (info) => runHooks.onRunEnded?.(info),
   });
 
   const steamCmd = new SteamCmdRunner(paths, logHub, config.runtime.mockSteamcmd);
@@ -68,6 +78,19 @@ async function main(): Promise<void> {
   });
   const metrics = new MetricsSampler();
   metrics.start();
+
+  const sessionRecorder = new SessionRecorder(store, runtime, metrics, async () => {
+    if (!runtime.isRunning() || config.runtime.mockServerBinary) return null;
+    const response = await rconCommand(
+      { host: "127.0.0.1", port: config.server.rconPort, password: config.server.rconPassword },
+      "players",
+    );
+    return parsePlayersResponse(response).length;
+  });
+  runHooks.onRunStarted = (info) => sessionRecorder.handleRunStarted(info);
+  runHooks.onRunEnded = (info) => sessionRecorder.handleRunEnded(info);
+  store.pruneMetricsSessions(30);
+  sessionRecorder.start();
 
   const ctx: AppContext = { config, paths, store, logHub, runtime, factoryReset, steamCmd, backups, metrics };
   const app = await buildApp(ctx);

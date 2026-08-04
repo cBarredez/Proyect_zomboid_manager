@@ -1057,6 +1057,381 @@ tr:hover td {
   flex-shrink: 0;
 }
 
+/* ─── Session metrics (dashboard panel + explorer modal) ─────────────
+   Cyan accent (#35c9e8) kept distinct from the violet --accent used
+   everywhere else, mirroring arma_server's treatment of this panel as a
+   standout telemetry feature rather than another config card. */
+
+.session-metrics-panel {
+  position: relative;
+  overflow: hidden;
+  border-color: #393b43;
+}
+
+.session-metrics-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 28%;
+  height: 2px;
+  background: #35c9e8;
+}
+
+.session-panel-heading {
+  align-items: center;
+}
+
+.session-panel-kicker {
+  color: #7d808b !important;
+}
+
+.session-panel-note {
+  margin: -0.5rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.session-metrics-table {
+  min-width: 780px;
+}
+
+.session-row {
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.session-row:hover td {
+  background: var(--surface-alt);
+}
+
+.metric-pair {
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.cpu-pair {
+  color: #72d9ed;
+}
+
+.ram-pair {
+  color: #67d99b;
+}
+
+/* ─── Session explorer modal ──────────────────────────────────────── */
+
+.session-explorer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.session-explorer-modal {
+  width: min(1200px, 100%);
+  max-height: min(860px, 92vh);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: #1d1d21;
+  border: 1px solid #3c3e46;
+  border-radius: 10px;
+  padding: 1.25rem 1.4rem;
+  overflow-y: auto;
+}
+
+.session-explorer-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.session-explorer-header h2 {
+  margin: 0.2rem 0 0;
+}
+
+.session-explorer-close {
+  padding: 0.35rem 0.6rem;
+}
+
+.session-quick-ranges {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  background: #1a1a1e;
+  border: 1px solid #353740;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.session-quick-ranges button {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  color: #747783;
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.4rem 0.7rem;
+}
+
+.session-quick-ranges button:hover {
+  color: #d9dae0;
+  border-color: transparent;
+}
+
+.session-quick-ranges button.active {
+  background: #35c9e8;
+  color: #101114;
+}
+
+.session-explorer-workspace {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 1rem;
+  min-height: 480px;
+}
+
+.session-run-index,
+.session-run-detail {
+  background: #202025;
+  border: 1px solid #363840;
+  border-radius: 7px;
+  padding: 0.85rem;
+  min-width: 0;
+}
+
+.session-run-index {
+  display: flex;
+  flex-direction: column;
+}
+
+.session-run-index-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.7rem;
+}
+
+.session-run-index-head strong {
+  background: #2e3037;
+  border-radius: 10px;
+  color: #b7bac4;
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: 0.62rem;
+  padding: 0.15rem 0.46rem;
+}
+
+.session-run-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.42rem;
+  overflow-y: auto;
+  max-height: 560px;
+}
+
+.session-run-item {
+  display: grid;
+  grid-template-columns: 3px minmax(0, 1fr);
+  align-items: stretch;
+  width: 100%;
+  min-height: 56px;
+  padding: 0;
+  overflow: hidden;
+  background: #25262b;
+  border: 1px solid #34363e;
+  border-radius: 5px;
+  color: #dadbe0;
+  text-align: left;
+  transition: background 0.14s, border-color 0.14s;
+}
+
+.session-run-item:hover {
+  background: #2a2b31;
+  border-color: #4c4f59;
+}
+
+.session-run-item.active {
+  background: #252d31;
+  border-color: rgba(53, 201, 232, 0.65);
+}
+
+.session-run-rail {
+  background: #444751;
+}
+
+.session-run-item.active .session-run-rail {
+  background: #35c9e8;
+}
+
+.session-run-main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0.5rem 0.65rem;
+  min-width: 0;
+}
+
+.session-run-main strong {
+  font-size: 0.76rem;
+  font-weight: 650;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.session-run-main small {
+  margin-top: 0.22rem;
+  color: #777a85;
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.session-detail-empty {
+  height: 100%;
+  min-height: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  color: #7f828d;
+  text-align: center;
+  padding: 1.5rem;
+}
+
+.session-detail-empty > strong {
+  color: #d8d9df;
+  font-size: 1rem;
+}
+
+.session-detail-empty > span {
+  max-width: 340px;
+  font-size: 0.8rem;
+}
+
+.session-detail-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.85rem;
+  margin-bottom: 0.85rem;
+  border-bottom: 1px solid #35373e;
+}
+
+.session-detail-heading h3 {
+  margin: 0.2rem 0;
+  font-size: 1rem;
+}
+
+.session-detail-heading code {
+  color: #777b86;
+  font-size: 0.66rem;
+}
+
+.session-detail-status {
+  color: #858894;
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: 0.63rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.session-detail-status.live {
+  color: var(--success);
+}
+
+.session-detail-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.65rem;
+  margin-bottom: 0.85rem;
+}
+
+.session-detail-stats > div {
+  position: relative;
+  background: #25262b;
+  border: 1px solid #353740;
+  border-radius: 5px;
+  padding: 0.7rem 0.75rem;
+}
+
+.session-detail-stats > div::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 0.75rem;
+  width: 30px;
+  height: 2px;
+  background: #35c9e8;
+}
+
+.session-detail-stats > div:nth-child(3)::before {
+  background: var(--success);
+}
+
+.session-detail-stats > div:nth-child(4)::before {
+  background: var(--warning);
+}
+
+.session-detail-stats span {
+  display: block;
+  margin-bottom: 0.3rem;
+  color: #777a85;
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+}
+
+.session-detail-stats strong {
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.session-chart-shell {
+  background: #1b1b1f;
+  border: 1px solid #32343b;
+  border-radius: 6px;
+  padding: 0.8rem;
+}
+
+.session-chart-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.65rem;
+  color: #7d808b;
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: 0.63rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.session-chart-title small {
+  color: #696c77;
+  font-size: 0.62rem;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+@media (max-width: 900px) {
+  .session-explorer-workspace {
+    grid-template-columns: 1fr;
+  }
+  .session-detail-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 /* ─── Activity console drawer ──────────────────────────────────────── */
 
 .console-drawer {

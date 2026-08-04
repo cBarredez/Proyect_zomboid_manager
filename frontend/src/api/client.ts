@@ -1,6 +1,6 @@
 import { recordApiActivity } from "./activity.js";
 
-const API_BASE = import.meta.env.VITE_API_BASE ?? "";
+export const API_BASE = import.meta.env.VITE_API_BASE ?? "";
 
 async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
   const startedAt = performance.now();
@@ -81,6 +81,34 @@ export interface ServerStatusResponse {
     maxPlayers: number;
     networkMode: string;
   };
+}
+
+export interface MetricsSample {
+  runId: string;
+  sampledAt: string;
+  cpuPercent: number | null;
+  coresCapacity: number;
+  memoryUsedBytes: number;
+  memoryPercent: number;
+  activePlayers: number | null;
+}
+
+export interface MetricsSessionSummary {
+  runId: string;
+  startedAt: string;
+  endedAt: string | null;
+  sampleCount: number;
+  avgCpuPercent: number | null;
+  peakCpuPercent: number | null;
+  coresCapacity: number;
+  avgMemoryPercent: number | null;
+  peakMemoryPercent: number | null;
+  peakPlayers: number | null;
+}
+
+export interface MetricsSessionDetail {
+  session: MetricsSessionSummary;
+  samples: MetricsSample[];
 }
 
 /** Pure presentation mapping for a server status, kept separate from fetching so it's unit-testable. */
